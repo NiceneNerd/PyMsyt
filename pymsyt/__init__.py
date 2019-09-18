@@ -78,18 +78,18 @@ def export(msbt_input: Union[str, Path], msyt_output: Union[str, Path]) -> bool:
     if isinstance(msyt_output, str):
         msyt_output = Path(msyt_output)
     msyt_output.parent.mkdir(parents=True, exist_ok=True)
+    args = [
+        str(MSYT_PATH),
+        'export',
+        str(msbt_input.resolve()),
+        '-o',
+        str(msyt_output.with_suffix('').resolve())
+    ]
+    if msbt_input.is_dir():
+        args.insert(2, '-d')
     subprocess.call(
-        [
-            str(MSYT_PATH),
-            'export',
-            '-d' if msbt_input.is_dir() else '',
-            str(msbt_input.resolve()),
-            '-o',
-            str(msyt_output.with_suffix('').resolve())
-        ],
-        creationflags=subprocess.CREATE_NO_WINDOW,
-        stderr=subprocess.DEVNULL,
-        stdout=subprocess.DEVNULL
+        args, creationflags=subprocess.CREATE_NO_WINDOW,
+        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
     )
     return msyt_output.exists()
 
@@ -127,22 +127,22 @@ def create(msyt_input: Union[str, Path], msbt_ouput: Union[str, Path],
             )
 
     msbt_ouput.parent.mkdir(parents=True, exist_ok=True)
+    args = [
+        str(MSYT_PATH),
+        'create',
+        str(msyt_input.resolve()),
+        '-p',
+        platform,
+        '-E',
+        encoding,
+        '-o',
+        str(msbt_ouput.with_suffix('').resolve())
+    ]
+    if msyt_input.is_dir():
+        args.insert(2, '-d')
     subprocess.call(
-        [
-            str(MSYT_PATH),
-            'create',
-            '-d' if msyt_input.is_dir() else '',
-            str(msyt_input.resolve()),
-            '-p',
-            platform,
-            '-E',
-            encoding,
-            '-o',
-            str(msbt_ouput.with_suffix('').resolve())
-        ],
-        creationflags=subprocess.CREATE_NO_WINDOW,
-        stderr=subprocess.DEVNULL,
-        stdout=subprocess.DEVNULL
+        args, creationflags=subprocess.CREATE_NO_WINDOW,
+        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
     )
     if msbt_ouput.is_file() and msbt_ouput.with_suffix('').exists():
         shutil.rmtree(msbt_ouput.with_suffix(''))

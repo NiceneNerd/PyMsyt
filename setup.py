@@ -5,7 +5,7 @@ with open("docs/README.md", "r") as readme:
 
 setup(
     name='PyMsyt',
-    version='0.1.post1',
+    version='0.1.2',
     author='NiceneNerd',
     author_email='macadamiadaze@gmail.com',
     description='Quick and dirty wrapper for MSYT',
