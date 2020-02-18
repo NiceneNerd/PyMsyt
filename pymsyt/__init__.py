@@ -14,8 +14,10 @@ _debug = False
 
 if os.name == 'posix':
     MSYT_PATH = EXEC_DIR / 'bin' / 'msyt'
+    CREATIONFLAGS = False
 elif os.name == 'nt':
     MSYT_PATH = EXEC_DIR / 'bin' / 'msyt.exe'
+    CREATIONFLAGS = True
 else:
     raise RuntimeError('Only POSIX-based or Windows systems are supported.')
 
@@ -91,12 +93,19 @@ def export(msbt_input: Union[str, Path], msyt_output: Union[str, Path]) -> bool:
     ]
     if msbt_input.is_dir():
         args.insert(2, '-d')
-    subprocess.call(
-        args,
-        creationflags=subprocess.CREATE_NO_WINDOW if not _debug else 0,
-        stderr=subprocess.DEVNULL if not _debug else sys.__stdout__,
-        stdout=subprocess.DEVNULL if not _debug else sys.__stdout__
-    )
+    if CREATIONFLAGS:
+        subprocess.call(
+            args,
+            creationflags=subprocess.CREATE_NO_WINDOW if not _debug else 0,
+            stderr=subprocess.DEVNULL if not _debug else sys.__stdout__,
+            stdout=subprocess.DEVNULL if not _debug else sys.__stdout__
+        )
+    else:
+        subprocess.call(
+            args,
+            stderr=subprocess.DEVNULL if not _debug else sys.__stdout__,
+            stdout=subprocess.DEVNULL if not _debug else sys.__stdout__
+        )
     return msyt_output.exists()
 
 def create(msyt_input: Union[str, Path], msbt_ouput: Union[str, Path],
@@ -133,12 +142,19 @@ def create(msyt_input: Union[str, Path], msbt_ouput: Union[str, Path],
     ]
     if msyt_input.is_dir():
         args.insert(2, '-d')
-    subprocess.call(
-        args,
-        creationflags=subprocess.CREATE_NO_WINDOW if not _debug else 0,
-        stderr=subprocess.DEVNULL if not _debug else sys.__stdout__,
-        stdout=subprocess.DEVNULL if not _debug else sys.__stdout__
-    )
+    if CREATIONFLAGS:
+        subprocess.call(
+            args,
+            creationflags=subprocess.CREATE_NO_WINDOW if not _debug else 0,
+            stderr=subprocess.DEVNULL if not _debug else sys.__stdout__,
+            stdout=subprocess.DEVNULL if not _debug else sys.__stdout__
+        )
+    else:
+        subprocess.call(
+            args,
+            stderr=subprocess.DEVNULL if not _debug else sys.__stdout__,
+            stdout=subprocess.DEVNULL if not _debug else sys.__stdout__
+        )
     if msbt_ouput.is_file() and msbt_ouput.with_suffix('').exists():
         shutil.rmtree(msbt_ouput.with_suffix(''))
     return msbt_ouput.exists()
