@@ -1,11 +1,15 @@
 from setuptools import setup
+import os
+
+if os.name == 'posix':
+    os.chmod('pymsyt/bin/msyt', int('755', 8))
 
 with open("docs/README.md", "r") as readme:
     long_description = readme.read()
 
 setup(
     name='PyMsyt',
-    version='0.1.4',
+    version='0.1.5',
     author='NiceneNerd',
     author_email='macadamiadaze@gmail.com',
     description='Quick and dirty wrapper for MSYT',
