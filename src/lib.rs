@@ -3,7 +3,7 @@ use pyo3::{
     create_exception,
     exceptions::PyException,
     prelude::*,
-    types::{PyDict, PyString},
+    types::{PyBytes, PyDict, PyString},
 };
 
 create_exception!(pymsyt, MsytError, PyException);
@@ -42,10 +42,10 @@ pub struct Msbt {
 
 #[pymethods]
 impl Msbt {
-    /// Parses an MSBT file from a byteslike object
+    /// Parses an MSBT file from a bytes object
     ///
     /// :param data: The bytes of the MSBT file to parse.
-    /// :type data: byteslike
+    /// :type data: bytes (*only* bytes proper, *not* byteslike)
     /// :return: Returns a parsed `pymsyt.Msbt` class representing the MSBT file.
     /// :rtype: `pymsyt.Msbt`
     /// :raises MsytError: Raises an `MsytError` if parsing fails.
@@ -65,15 +65,23 @@ impl Msbt {
     /// :rtype: bytes
     /// :raises MsytError: Raises an `MsytError` if serialization fails.
     #[text_signature = "(big_endian, /)"]
-    pub fn to_binary(&self, big_endian: bool) -> PyResult<Vec<u8>> {
-        Ok(self
-            .msyt
-            .clone()
-            .into_msbt_bytes(match big_endian {
-                true => Endianness::Big,
-                false => Endianness::Little,
-            })
-            .map_err(|e| MsytError::new_err(format!("Failed to serialize MSBT file: {:?}", e)))?)
+    pub fn to_binary(&self, big_endian: bool) -> PyResult<Py<PyAny>> {
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+        Ok(PyBytes::new(
+            py,
+            &self
+                .msyt
+                .clone()
+                .into_msbt_bytes(match big_endian {
+                    true => Endianness::Big,
+                    false => Endianness::Little,
+                })
+                .map_err(|e| {
+                    MsytError::new_err(format!("Failed to serialize MSBT file: {:?}", e))
+                })?,
+        )
+        .into())
     }
 
     /// Generates a YAML representation of this MSBT file.
